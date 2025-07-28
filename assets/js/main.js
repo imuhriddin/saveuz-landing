@@ -207,3 +207,54 @@
   document.addEventListener('scroll', navmenuScrollspy);
 
 })();
+
+
+// Yangi kod: Telegramga xabar jo'natish uchun
+document.addEventListener('DOMContentLoaded', () => {
+  const contactForm = document.querySelector('#contact .php-email-form'); // Formani topamiz
+
+  if (contactForm) {
+    contactForm.addEventListener('submit', function(event) {
+      event.preventDefault(); // Sahifani yangilanishini to'xtatamiz
+
+      const loading = contactForm.querySelector('.loading');
+      const errorMessage = contactForm.querySelector('.error-message');
+      const sentMessage = contactForm.querySelector('.sent-message');
+
+      // Formadagi ma'lumotlarni olamiz
+      const formData = {
+        name: contactForm.querySelector('[name="name"]').value,
+        email: contactForm.querySelector('[name="email"]').value,
+        subject: contactForm.querySelector('[name="subject"]').value,
+        message: contactForm.querySelector('[name="message"]').value,
+      };
+
+      loading.style.display = 'block'; // "Loading"ni ko'rsatamiz
+      errorMessage.style.display = 'none';
+      sentMessage.style.display = 'none';
+      
+      fetch('/api/sendMessage', { // Biz yaratgan "ko'prik" manziliga so'rov
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+      .then(response => response.json())
+      .then(data => {
+        loading.style.display = 'none';
+        if (data.message === 'Message sent successfully!') {
+          sentMessage.style.display = 'block';
+          contactForm.reset(); // Formani tozalaymiz
+        } else {
+          throw new Error('Failed to send message.');
+        }
+      })
+      .catch((error) => {
+        loading.style.display = 'none';
+        errorMessage.innerHTML = 'Xatolik yuz berdi. Iltimos, keyinroq urinib ko\'ring.';
+        errorMessage.style.display = 'block';
+      });
+    });
+  }
+}); 
