@@ -258,3 +258,40 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 }); 
+
+
+
+// Yangi kod: Google Sheets'ga ma'lumot jo'natish uchun
+document.addEventListener('DOMContentLoaded', () => {
+  const contactForm = document.querySelector('#contact form'); // Formani topamiz
+  const scriptURL = 'https://script.google.com/macros/s/AKfycbw7mXrvziYuAr2pscGnjTXy2zKvdc1UEGFt4jwFOBvtowT6PGemMC2zY18MaXriqR0Y/exec'; // Qadam 3 da olgan havolangizni shu yerga qo'ying
+
+  if (contactForm) {
+    contactForm.addEventListener('submit', function(e) {
+      e.preventDefault(); // Sahifani yangilanishini to'xtatamiz
+
+      const loading = contactForm.querySelector('.loading');
+      const errorMessage = contactForm.querySelector('.error-message');
+      const sentMessage = contactForm.querySelector('.sent-message');
+      const submitButton = contactForm.querySelector('button[type="submit"]');
+
+      loading.style.display = 'block';
+      submitButton.setAttribute('disabled', true);
+
+      fetch(scriptURL, { method: 'POST', body: new FormData(contactForm) })
+        .then(response => {
+          loading.style.display = 'none';
+          sentMessage.style.display = 'block';
+          contactForm.reset();
+          submitButton.removeAttribute('disabled');
+        })
+        .catch(error => {
+          loading.style.display = 'none';
+          errorMessage.innerHTML = 'Xatolik yuz berdi. Iltimos, keyinroq urinib ko\'ring.';
+          errorMessage.style.display = 'block';
+          submitButton.removeAttribute('disabled');
+          console.error('Error!', error.message);
+        });
+    });
+  }
+});
